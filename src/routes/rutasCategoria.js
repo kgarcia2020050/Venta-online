@@ -9,5 +9,6 @@ api.post("/agregarCategorias",md_autenticacion.Auth,controlador.agregarCategoria
 api.put("/editarCategoria/:ID",md_autenticacion.Auth,controlador.editarCategorias)
 api.delete("/eliminarCategorias/:ID",md_autenticacion.Auth,controlador.eliminarCategoria)
 api.get("/buscarCategoria",md_autenticacion.Auth,controlador.buscarCategoria)
+api.get("/productosPorCategoria",md_autenticacion.Auth,controlador.buscarProductosPorCategorias)
 
 module.exports = api;

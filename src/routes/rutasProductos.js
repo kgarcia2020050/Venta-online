@@ -11,4 +11,7 @@ api.get("/buscarProducto",md_autenticacion.Auth,controlador.buscarProducto)
 api.delete("/borrarProducto/:ID",md_autenticacion.Auth,controlador.eliminarProducto)
 api.put("/modificarInventario/:ID",md_autenticacion.Auth,controlador.modificarInventario)
 api.put("/cambiarCategoria/:ID",md_autenticacion.Auth,controlador.cambiarCategoria)
+
+api.get("/masVendidos",md_autenticacion.Auth,controlador.masVendidos)
+api.get("/agotados",md_autenticacion.Auth,controlador.productosAgotados)
 module.exports = api; 

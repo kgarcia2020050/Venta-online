@@ -5,6 +5,8 @@ const jwt = require("../services/jwt");
 const cli = require("nodemon/lib/cli");
 const { rmSync } = require("fs");
 
+const Facturas = require("../models/facturas");
+
 function crearAdmin() {
   var modeloUsuarios = new Usuarios();
   Usuarios.find({ rol: "Admin" }, (error, admin) => {
@@ -23,7 +25,7 @@ function crearAdmin() {
         });
       });
     } else {
-      console.log("Los datos del administrador son " + admin);
+      console.log("Ya existe un administrador, sus datos son " + admin);
     }
   });
 }
@@ -37,18 +39,33 @@ function Login(req, res) {
         datos.password,
         usuarioEncontrado.password,
         (error, verificacionDePassword) => {
-          if (verificacionDePassword) {
-            if (datos.obtenerToken === "true") {
-              return res
-                .status(200)
-                .send({ token: jwt.crearToken(usuarioEncontrado) });
-            } else {
-              usuarioEncontrado.password = undefined;
-              return res.status(500).send({ Usuario: usuarioEncontrado });
+          Facturas.find(
+            { idUsuario: usuarioEncontrado._id },
+            (error, facturasEncontradas) => {
+              if (error)
+                return res
+                  .status(500)
+                  .send({ Error: "Error en la peticion de obtener facturas." });
+              if (verificacionDePassword) {
+                if (datos.obtenerToken === "true") {
+                  return res.status(200).send({
+                    Token_para_verificacion: jwt.crearToken(usuarioEncontrado),
+                    Mis_compras: facturasEncontradas,
+                  });
+                } else {
+                  usuarioEncontrado.password = undefined;
+                  return res
+                    .status(500)
+                    .send({
+                      Usuario: usuarioEncontrado,
+                      Mis_compras: facturasEncontradas,
+                    });
+                }
+              } else {
+                return res.status(500).send({ Error: "La clave no coincide." });
+              }
             }
-          } else {
-            return res.status(500).send({ Error: "La clave no coincide." });
-          }
+          );
         }
       );
     } else {
@@ -122,6 +139,13 @@ function cambiarPasswordUsuarios(req, res) {
 
   var datos = req.body;
 
+  if (datos.nombre || datos.usuario || datos.rol) {
+    return res.status(500).send({
+      Error:
+        "Estos datos no se pueden modificar desde aqui. (Nombre, rol y usuario)",
+    });
+  }
+
   Usuarios.findById(idCliente, (error, clienteEncontrado) => {
     if (clienteEncontrado == null) {
       return res.status(500).send({ Error: "Este cliente no existe." });
@@ -145,11 +169,6 @@ function cambiarPasswordUsuarios(req, res) {
                   return res
                     .status(500)
                     .send({ Error: "Error en la peticion." });
-                if (!datoEditado)
-                  return res.status(404).send({
-                    Error:
-                      "Este cliente no se encuentra. \nRevise si el cliente se encuentra registrado o si el cliente fue promovido a administrador. En ese caso no podra modificar su clave.",
-                  });
                 datoEditado.password = claveEncriptada;
 
                 Usuarios.findByIdAndUpdate(
@@ -161,11 +180,6 @@ function cambiarPasswordUsuarios(req, res) {
                       return res
                         .status(500)
                         .send({ Error: "Error en la peticion." });
-                    if (!perfilEditado)
-                      return res.status(400).send({
-                        Error:
-                          "Este cliente no se encuentra. \nRevise si el cliente se encuentra registrado o si el cliente fue promovido a administrador. En ese caso no podra modificar su clave.",
-                      });
                     return res
                       .status(200)
                       .send({ Mensaje: "Clave modificada con exito." });
@@ -192,6 +206,13 @@ function editarRolUsuario(req, res) {
   var datos = req.body;
   var idCliente = req.params.ID;
 
+  if (datos.nombre || datos.usuario || datos.password) {
+    return res.status(500).send({
+      Error:
+        "Estos datos no se pueden modificar desde aqui. (Nombre, usuario y password)",
+    });
+  }
+
   Usuarios.findById(idCliente, (error, clienteEncontrado) => {
     if (clienteEncontrado == null) {
       return res.status(500).send({ Error: "Este cliente no existe." });
@@ -208,11 +229,6 @@ function editarRolUsuario(req, res) {
           (error, rolCambiado) => {
             if (error)
               return res.status(500).send({ Error: "Error en la peticion." });
-            if (!rolCambiado)
-              return res.status(404).send({
-                Error:
-                  "Este cliente no se encuentra. \nRevise si el cliente se encuentra registrado o si el cliente fue promovido a administrador. En ese caso no podra modificar su rol.",
-              });
             return res.status(200).send({ Rol_actualizado: rolCambiado });
           }
         );
@@ -237,9 +253,10 @@ function editarUsuario(req, res) {
   var idCliente = req.params.ID;
 
   if (datos.password || datos.rol) {
-    return res
-      .status(500)
-      .send({ Error: "Estos datos no pueden ser modificados desde aqui." });
+    return res.status(500).send({
+      Error:
+        "Estos datos no pueden ser modificados desde aqui. (Rol y password)",
+    });
   }
 
   Usuarios.findById(idCliente, (error, clienteEncontrado) => {
@@ -264,11 +281,6 @@ function editarUsuario(req, res) {
                     return res
                       .status(500)
                       .send({ Error: "Error en la peticion." });
-                  if (!usuarioActualizado)
-                    return res.status(404).send({
-                      Error:
-                        "Este cliente no se encuentra. \nRevise si el cliente se encuentra registrado o si el cliente fue promovido a administrador. En ese caso no podra modificar su informacion.",
-                    });
                   return res
                     .status(200)
                     .send({ Datos_actualizados: usuarioActualizado });

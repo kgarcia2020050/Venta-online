@@ -94,6 +94,13 @@ function editarProductos(req, res) {
 
   var idProducto = req.params.ID;
   var datos = req.body;
+
+  if (datos.cantidad || datos.categoria) {
+    return res.status(500).send({
+      Error:
+        "Estos datos no se pueden modificar desde aqui.(Cantidad y categoria)",
+    });
+  }
   if (datos.nombre && datos.precio) {
     Productos.find(
       { nombre: { $regex: datos.nombre, $options: "i" } },
@@ -138,11 +145,18 @@ function cambiarCategoria(req, res) {
 
   var idProducto = req.params.ID;
 
-  var nuevaCategoria = req.body;
+  var datos = req.body;
 
-  if (nuevaCategoria.categoria) {
+  if (datos.nombre || datos.precio || datos.cantidad) {
+    return res.status(500).send({
+      Error:
+        "Estos datos no se pueden modificar desde aqui. (Nombre, cantidad y precio)",
+    });
+  }
+
+  if (datos.categoria) {
     Categorias.findOne(
-      { nombre: { $regex: nuevaCategoria.categoria, $options: "i" } },
+      { nombre: { $regex: datos.categoria, $options: "i" } },
       (error, categoriaEncontrada) => {
         if (error)
           return res
@@ -202,13 +216,20 @@ function modificarInventario(req, res) {
     });
   }
 
-  var inventario = req.body;
+  var datos = req.body;
+
+  if (datos.nombre || datos.categoria || datos.precio) {
+    return res.status(500).send({
+      Error:
+        "Estos datos no se pueden modificar desde aqui. (Nombre, categoria y precio.)",
+    });
+  }
 
   var idProducto = req.params.ID;
-  if (inventario.cantidad) {
+  if (datos.cantidad) {
     Productos.findByIdAndUpdate(
       idProducto,
-      { $inc: { cantidad: inventario } },
+      { $inc: { cantidad: datos.cantidad } },
       { new: true },
       (error, productoModificado) => {
         if (error)
@@ -251,7 +272,7 @@ function buscarProducto(req, res) {
 
       return res.status(200).send({ Producto_buscado: productoEncontrado });
     }
-  );
+  ).populate("idCategoria", "nombre");
 }
 
 function eliminarProducto(req, res) {
@@ -264,13 +285,37 @@ function eliminarProducto(req, res) {
   }
 
   Productos.findByIdAndDelete(idProducto, (error, productoEliminado) => {
-    if (error)
-      return res.status(500).send({ Error: "Este producto no existe." });
+    if (error) return res.status(500).send({ Error: "Error en la peticion." });
     if (!productoEliminado)
-      return res
-        .status(404)
-        .send({ Error: "No se pudo eliminar al producto." });
+      return res.status(404).send({ Error: "Este producto no existe." });
     return res.status(200).send({ Producto_eliminado: productoEliminado });
+  });
+}
+
+function masVendidos(req, res) {
+  Productos.find({ ventas: { $gt: 99 } }, (error, masVendidos) => {
+    if (error) return res.status(500).send({ Error: "Error en la peticion" });
+    if (masVendidos.length == 0)
+      return res
+        .status(500)
+        .send({ Error: "No hay productos muy populares ahora." });
+    return res
+      .status(200)
+      .send({ Los_productos_mas_vendidos_son: masVendidos });
+  });
+}
+
+function productosAgotados(req, res) {
+  Productos.find({ cantidad: 0 }, (error, productosAgotados) => {
+    if (error) return res.status(500).send({ Error: "Error en la peticion." });
+    if (productosAgotados.length == 0)
+      return res
+        .status(500)
+        .send({ Error: "Aun no se ha agotado ningun producto." });
+
+    return res
+      .status(500)
+      .send({ Los_productos_que_se_han_agotado_son: productosAgotados });
   });
 }
 
@@ -282,4 +327,6 @@ module.exports = {
   eliminarProducto,
   modificarInventario,
   cambiarCategoria,
+  productosAgotados,
+  masVendidos,
 };

@@ -9,7 +9,7 @@ function verPerfil(req, res) {
     if (!informacion)
       return res
         .status(404)
-        .send({ Error: "No se puede visualizar la informacion de tu perfil." });
+        .send({ Error: "Tu perfil no existe." });
     return res.status(200).send({ Mi_perfil: informacion });
   });
 }
@@ -53,7 +53,7 @@ function registro(req, res) {
       }
     );
   } else {
-    return res.status.send({
+    return res.status(500).send({
       Error: "Debes llenar los campos solicitados.(Nombre, usuario y password)",
     });
   }
@@ -64,7 +64,7 @@ function cambiarClave(req, res) {
   var datos = req.body;
 
   if(datos.nombre||datos.usuario){
-    return res.status(500).send({Error:"Estos valores no pueden ser modificados desde aqui."})
+    return res.status(500).send({Error:"Estos valores no pueden ser modificados desde aqui. (Nombre y usuario)"})
   }
 
   if(req.user.rol=="Cliente"&&datos.rol){
@@ -89,7 +89,7 @@ function cambiarClave(req, res) {
                 return res.status(500).send({ Error: "Error en la peticion." });
               if (!perfilEditado)
                 return res.status(400).send({
-                  Error: "El perfil no existe.",
+                  Error: "Tu perfil no existe.",
                 });
               return res
                 .status(200)
@@ -110,7 +110,7 @@ function editarPerfil(req, res) {
 
   if(datos.password){
     return res.status(500).send({Error:"Estos valores no pueden ser modificados desde aqui."})
-  }
+  } 
 
   if(req.user.rol=="Cliente"&&datos.rol){
     return res.status(500).send({Error:"No puedes modificar tu rol."})
@@ -128,7 +128,7 @@ function editarPerfil(req, res) {
         if (!nuevosDatos)
           return res
             .status(500)
-            .send({ Error: "El perfil no existe." });
+            .send({ Error: "Tu perfil no existe." });
         return res.status(200).send({ Nuevos_datos: nuevosDatos });
       }
     );
@@ -145,7 +145,7 @@ function eliminarPerfil(req, res) {
   Usuarios.findByIdAndDelete(idPerfil, (error, perfilEliminado) => {
     if (error) return res.status(500).send({ Error: "Error en la peticion." });
     if (!perfilEliminado)
-      return res.status(500).send({ Error: "El perfil no existe." });
+      return res.status(500).send({ Error: "Tu perfil no existe." });
     return res.status(200).send({ Perfil_eliminado: perfilEliminado });
   });
 }

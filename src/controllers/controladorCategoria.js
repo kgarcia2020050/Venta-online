@@ -225,10 +225,45 @@ function buscarCategoria(req, res) {
   );
 }
 
+function buscarProductosPorCategorias(req, res) {
+  var dato = req.body.nombre;
+
+  if (dato) {
+    Categoria.findOne(
+      { nombre: { $regex: dato, $options: "i" } },
+      (error, categoriaEncontrada) => {
+        if (error)
+          return res.status(500).send({ Error: "Error en la peticion." });
+        if (!categoriaEncontrada)
+          return res.status(500).send({ Error: "Esta categoria no existe." });
+
+        Productos.find(
+          { idCategoria: categoriaEncontrada._id },
+          (error, productoEncontrado) => {
+            if (error)
+              return res.status(500).send({ Error: "Error en la peticion." });
+            if (!productoEncontrado)
+              return res
+                .status(500)
+                .send({ Error: "No hay productos con esta categoria." });
+
+            return res.status(200).send({ Productos: productoEncontrado });
+          }
+        ).populate("idCategoria", "nombre");
+      }
+    );
+  } else {
+    return res
+      .status(500)
+      .send({ Error: "Ingresa el nombre de la categoria encontrada." });
+  }
+}
+
 module.exports = {
   agregarCategoria,
   verCategorias,
   editarCategorias,
   eliminarCategoria,
-  buscarCategoria
+  buscarCategoria,
+  buscarProductosPorCategorias
 };
