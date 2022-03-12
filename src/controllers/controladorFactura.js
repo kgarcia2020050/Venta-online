@@ -94,67 +94,7 @@ function agregarAlCarrito(req, res) {
                   }
                 );
               } else {
-                /*                 var nuevaCantidad=0;
-                for (var i = 0; productoExistente.carrito.length > i; i++) {
-                  nuevaCantidad =
-                    datos.cantidad +
-                    productoExistente.carrito[i].cantidadProducto;
-                  var nuevoTotalCarrito;
-                  Usuarios.findOneAndUpdate(
-                    {
-                      carrito: {
-                        $elemMatch: { _id: productoExistente.carrito[i]._id },
-                      },
-                    },
-                    {
-                      $inc: {
-                        "carrito.$.cantidadProducto": datos.cantidad,
-                        "carrito.$.totalProducto":
-                          nuevaCantidad * productoEncontrado.precio,
-                      },
-                    },
-                    { new: true },
-                    (error, nuevoTotal) => {
-                      if (error)
-                        return res.status(500).send({
-                          Error:
-                            "Error en la peticion de aumentar total. (Producto ya agregado)",
-                        });
-                      if (!nuevoTotal)
-                        return res.status(500).send({
-                          Error:
-                            "No se pudo aumentar la cantidad del producto ya agregado.",
-                        });
 
-                      for (var a = 0; nuevoTotal.carrito.length > a; a++) {
-                        nuevoTotalCarrito =
-                          nuevoTotalCarrito +
-                          nuevoTotal.carrito[a].cantidadProducto;
-                      }
-
-                      Usuarios.findByIdAndUpdate(
-                        { _id: req.user.sub },
-                        { precioTotal:nuevoTotalCarrito },
-                        { new: true },
-                        (error, totalDeCompra) => {
-                          if (error)
-                          console.log(error)
-                            return res.status(500).send({
-                              Error:
-                                "Error en la peticion de modificar el total. (Producto ya agregado)"
-                            });
-                          if (!totalDeCompra)
-                            return res.status(500).send({
-                              Error: "No se pudo modificar el nuevo total.",
-                            });
-                          return res.status(500).send({
-                            Mi_carrito: totalDeCompra,
-                          });
-                        }
-                      );
-                    }
-                  );
-                } */
               }
             }
           );
