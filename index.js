@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { proppatch } = require("./app");
 const app = require("./app");
 const Usuarios = require("./src/controllers/controladorUsuario");
 
@@ -11,7 +12,14 @@ mongoose
   .then(() => {
     console.log("Conexion exitosa.");
 
-    app.listen(3030, function () {});
+
+    const port=process.env.PORT;
+
+    app.listen(port||3030, function () {
+
+      console.log("Corriendo en el puerto "+port)
+
+    });
   })
   .catch((error) => console.log(error));
 
