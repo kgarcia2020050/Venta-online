@@ -5,20 +5,20 @@ const Usuarios = require("./src/controllers/controladorUsuario");
 
 mongoose.Promise = global.Promise;
 mongoose
-  .connect("mongodb://localhost:27017/VentaOnline", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    "mongodb+srv://takeru:ellanomeama@cluster0.ppw9e.mongodb.net/?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => {
     console.log("Conexion exitosa.");
 
+    const port = process.env.PORT;
 
-    const port=process.env.PORT;
-
-    app.listen(port||3030, function () {
-
-      console.log("Corriendo en el puerto "+port)
-
+    app.listen(port || 3030, function () {
+      console.log("Corriendo en el puerto " + port);
     });
   })
   .catch((error) => console.log(error));
