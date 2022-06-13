@@ -13,9 +13,6 @@ api.put("/editarRol/:ID",md_autenticacion.Auth,controlador.editarRolUsuario)
 api.put("/editarPassword/:ID",md_autenticacion.Auth,controlador.cambiarPasswordUsuarios)
 
 
-api.get("/",function(req,res){
-    return res.status(200).send("Hola mundo")
-})
 
 
 module.exports = api; 
