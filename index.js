@@ -18,7 +18,7 @@ mongoose
     const port = process.env.PORT;
 
     app.listen(port || 3030, function () {
-      console.log("Corriendo en el puerto " + port);
+      return console.log("Corriendo en el puerto " + port);
     });
   })
   .catch((error) => console.log(error));

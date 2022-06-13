@@ -14,7 +14,7 @@ api.put("/editarPassword/:ID",md_autenticacion.Auth,controlador.cambiarPasswordU
 
 
 api.get("/",function(req,res){
-    console.log("Hola mundo")
+    return res.status(200).send("Hola mundo")
 })
 
 
